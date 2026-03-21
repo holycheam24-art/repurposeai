@@ -4,31 +4,76 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>RepurposeAI</title>
-<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#07070f;color:#ede9ff;font-family:sans-serif;min-height:100vh}
-.hero{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:40px 20px}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:20px 40px;border-bottom:1px solid rgba(255,255,255,0.07)}
+.logo{font-size:1.2rem;font-weight:900;background:linear-gradient(135deg,#7455ff,#e040fb);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:90vh;text-align:center;padding:40px 20px}
 h1{font-size:3rem;font-weight:900;margin-bottom:16px;background:linear-gradient(135deg,#fff,#9d7cff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-p{color:rgba(237,233,255,0.6);font-size:1.1rem;margin-bottom:32px;max-width:500px}
+.sub{color:rgba(237,233,255,0.6);font-size:1.1rem;margin-bottom:32px;max-width:500px}
 .btn{padding:16px 36px;background:linear-gradient(135deg,#7455ff,#e040fb);border:none;color:#fff;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer}
+.app{max-width:800px;margin:0 auto;padding:40px 20px;display:none}
+.app.show{display:block}
+.label{font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:rgba(237,233,255,0.4);margin-bottom:8px;margin-top:20px}
+textarea{width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:#ede9ff;font-size:0.95rem;padding:14px;min-height:150px;resize:vertical;outline:none}
+.platforms{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.chip{padding:8px 16px;border-radius:100px;border:1px solid rgba(255,255,255,0.15);background:none;color:rgba(237,233,255,0.6);cursor:pointer;font-size:0.85rem}
+.chip.on{background:rgba(116,85,255,0.2);border-color:#7455ff;color:#ede9ff}
+.genbtn{width:100%;padding:15px;background:linear-gradient(135deg,#7455ff,#e040fb);border:none;color:#fff;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;margin-top:20px}
+.output{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:20px;margin-top:16px;white-space:pre-wrap;font-size:0.9rem;line-height:1.8;color:rgba(237,233,255,0.85);min-height:80px;display:none}
+.output.show{display:block}
+.err{color:#f87171;font-size:0.85rem;margin-top:8px;text-align:center;display:none}
+.err.show{display:block}
 </style>
 </head>
 <body>
-<div id="root"></div>
-<script type="text/babel">
-function App() {
-  return (
-    <div className="hero">
-      <h1>RepurposeAI</h1>
-      <p>Turn one piece of content into platform-ready posts for Twitter, LinkedIn, Instagram, email and TikTok — instantly.</p>
-      <button className="btn">Start Repurposing Free →</button>
-    </div>
-  );
+<div class="nav">
+<div class="logo">RepurposeAI</div>
+<button class="btn" style="padding:10px 20px;font-size:0.85rem" onclick="showApp()">Try Free</button>
+</div>
+<div class="hero" id="hero">
+<h1>RepurposeAI</h1>
+<p class="sub">Turn one piece of content into platform-ready posts for Twitter, LinkedIn, Instagram, email and TikTok instantly.</p>
+<button class="btn" onclick="showApp()">Start Repurposing Free</button>
+</div>
+<div class="app" id="app">
+<div class="label">Your Content</div>
+<textarea id="txt" placeholder="Paste your blog post, podcast transcript, newsletter, or any content here..."></textarea>
+<div class="label">Target Platforms</div>
+<div class="platforms">
+<button class="chip on" onclick="tog(this)">Twitter/X</button>
+<button class="chip on" onclick="tog(this)">LinkedIn</button>
+<button class="chip" onclick="tog(this)">Instagram</button>
+<button class="chip" onclick="tog(this)">Newsletter</button>
+<button class="chip" onclick="tog(this)">TikTok Script</button>
+</div>
+<button class="genbtn" onclick="gen()">Generate Content</button>
+<div class="err" id="err"></div>
+<div class="output" id="out"></div>
+</div>
+<script>
+function showApp(){document.getElementById("hero").style.display="none";document.getElementById("app").classList.add("show");}
+function tog(b){b.classList.toggle("on");}
+async function gen(){
+var txt=document.getElementById("txt").value;
+var out=document.getElementById("out");
+var err=document.getElementById("err");
+var plats=Array.from(document.querySelectorAll(".chip.on")).map(function(c){return c.textContent;});
+err.className="err";out.className="output";
+if(txt.trim().length<40){err.textContent="Please enter at least 40 characters.";err.className="err show";return;}
+out.textContent="Generating...";out.className="output show";
+try{
+var r=await fetch("/.netlify/functions/generate",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({prompt:"Repurpose this content for "+plats.join(", ")+". Label each platform clearly.\n\nContent: "+txt})
+});
+var d=await r.json();
+if(d.error){out.textContent="Error: "+d.error.message;return;}
+out.textContent=d.content.map(function(b){return b.text||"";}).join("");
+}catch(e){out.className="output";err.textContent="Generation failed. Please try again.";err.className="err show";}
 }
-ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 </script>
 </body>
 </html>
