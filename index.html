@@ -1,78 +1,272 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>RepurposeAI</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:wght@700;900&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#07070f;color:#ede9ff;font-family:sans-serif;min-height:100vh}
-.nav{display:flex;align-items:center;justify-content:space-between;padding:20px 40px;border-bottom:1px solid rgba(255,255,255,0.07)}
-.logo{font-size:1.2rem;font-weight:900;background:linear-gradient(135deg,#7455ff,#e040fb);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.hero{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:90vh;text-align:center;padding:40px 20px}
-h1{font-size:3rem;font-weight:900;margin-bottom:16px;background:linear-gradient(135deg,#fff,#9d7cff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.sub{color:rgba(237,233,255,0.6);font-size:1.1rem;margin-bottom:32px;max-width:500px}
-.btn{padding:16px 36px;background:linear-gradient(135deg,#7455ff,#e040fb);border:none;color:#fff;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer}
-.app{max-width:800px;margin:0 auto;padding:40px 20px;display:none}
-.app.show{display:block}
-.label{font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:rgba(237,233,255,0.4);margin-bottom:8px;margin-top:20px}
-textarea{width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:#ede9ff;font-size:0.95rem;padding:14px;min-height:150px;resize:vertical;outline:none}
-.platforms{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-.chip{padding:8px 16px;border-radius:100px;border:1px solid rgba(255,255,255,0.15);background:none;color:rgba(237,233,255,0.6);cursor:pointer;font-size:0.85rem}
-.chip.on{background:rgba(116,85,255,0.2);border-color:#7455ff;color:#ede9ff}
-.genbtn{width:100%;padding:15px;background:linear-gradient(135deg,#7455ff,#e040fb);border:none;color:#fff;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;margin-top:20px}
-.output{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:20px;margin-top:16px;white-space:pre-wrap;font-size:0.9rem;line-height:1.8;color:rgba(237,233,255,0.85);min-height:80px;display:none}
-.output.show{display:block}
-.err{color:#f87171;font-size:0.85rem;margin-top:8px;text-align:center;display:none}
-.err.show{display:block}
+body{background:#080808;color:#fff;font-family:'DM Mono',monospace;min-height:100vh}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:#2a2a2a;border-radius:4px}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+nav{position:sticky;top:0;z-index:100;backdrop-filter:blur(20px);border-bottom:1px solid #1a1a1a;background:rgba(8,8,8,0.9);height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{width:32px;height:32px;background:linear-gradient(135deg,#f59e0b,#ef4444);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.logo-text{font-family:'Playfair Display',serif;font-size:20px;font-weight:700}
+.tabs{display:flex;gap:4px}
+.tab-btn{background:transparent;border:1px solid transparent;color:#555;padding:7px 16px;border-radius:8px;cursor:pointer;font-family:'DM Mono',monospace;font-size:12px;transition:all 0.2s}
+.tab-btn.active{background:#1a1a1a;border-color:#2a2a2a;color:#fff}
+.container{max-width:900px;margin:0 auto;padding:48px 24px}
+.hero{text-align:center;margin-bottom:56px}
+.hero-label{font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#f59e0b;margin-bottom:16px}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(36px,6vw,64px);font-weight:900;line-height:1.1;margin-bottom:20px;letter-spacing:-0.03em}
+.hero h1 span{background:linear-gradient(135deg,#f59e0b,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{color:#555;font-size:15px;font-family:'Lora',serif;font-style:italic}
+.section-label{font-size:11px;color:#444;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px}
+.platforms{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px}
+.platform-btn{display:flex;align-items:center;gap:8px;padding:10px 18px;border-radius:999px;border:2px solid #2a2a2a;background:#0f0f0f;color:#555;cursor:pointer;font-family:'DM Mono',monospace;font-size:13px;font-weight:600;transition:all 0.2s}
+.input-box{background:#0c0c0c;border:1px solid #1e1e1e;border-radius:16px;overflow:hidden;margin-bottom:16px}
+.input-header{padding:12px 20px;border-bottom:1px solid #1a1a1a;display:flex;justify-content:space-between}
+.input-header span{font-size:11px;color:#333;letter-spacing:0.08em;text-transform:uppercase}
+#charCount{color:#2a2a2a}
+textarea{width:100%;background:transparent;border:none;color:#ccc;font-family:'Lora',serif;font-size:15px;line-height:1.8;padding:20px;resize:none;outline:none}
+.repurpose-btn{width:100%;padding:18px;background:#111;border:none;border-radius:12px;color:#333;font-family:'DM Mono',monospace;font-size:14px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:not-allowed;transition:all 0.2s}
+.repurpose-btn.active{background:linear-gradient(135deg,#f59e0b,#ef4444);color:#000;cursor:pointer}
+.repurpose-btn.loading{animation:pulse 1.5s infinite}
+.outputs{margin-top:48px}
+.outputs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:16px}
+.output-card{background:#0f0f0f;border:1px solid #2a2a2a;border-radius:16px;overflow:hidden;animation:fadeUp 0.4s ease forwards}
+.card-header{padding:14px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #1a1a1a;background:#141414}
+.card-title{display:flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase}
+.copy-btn{background:#1a1a1a;border:1px solid #2a2a2a;color:#666;padding:5px 12px;border-radius:6px;cursor:pointer;font-family:'DM Mono',monospace;font-size:11px;transition:all 0.2s}
+.copy-btn.copied{background:#22c55e22;border-color:#22c55e;color:#22c55e}
+.card-body{padding:20px;color:#ccc;font-family:'Lora',serif;font-size:14px;line-height:1.8;white-space:pre-wrap}
+.shimmer-line{height:14px;background:linear-gradient(90deg,#1a1a1a 25%,#2a2a2a 50%,#1a1a1a 75%);background-size:200% 100%;border-radius:4px;animation:shimmer 1.5s infinite;margin-bottom:10px}
+.error{color:#ef4444;font-size:12px;margin-bottom:12px}
+.pricing-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;align-items:center}
+.pricing-card{background:#0f0f0f;border:1px solid #1e1e1e;border-radius:20px;padding:28px 24px;display:flex;flex-direction:column;gap:16px;position:relative}
+.pricing-card.highlight{background:#fff;color:#000;transform:scale(1.04)}
+.popular-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#f59e0b;color:#000;font-size:10px;font-weight:800;letter-spacing:0.1em;padding:4px 14px;border-radius:999px;text-transform:uppercase;white-space:nowrap}
+.plan-name{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#444;margin-bottom:6px}
+.highlight .plan-name{color:#888}
+.plan-price{font-family:'Playfair Display',serif;font-size:40px;font-weight:700;line-height:1}
+.plan-features{list-style:none;display:flex;flex-direction:column;gap:8px}
+.plan-features li{display:flex;align-items:center;gap:8px;font-size:13px;color:#555}
+.highlight .plan-features li{color:#333}
+.plan-check{color:#f59e0b;font-weight:700}
+.highlight .plan-check{color:#000}
+.plan-btn{padding:12px;border-radius:10px;border:none;background:#1a1a1a;color:#aaa;font-family:'DM Mono',monospace;font-size:13px;font-weight:700;cursor:pointer;margin-top:auto}
+.highlight .plan-btn{background:#000;color:#fff}
+.pricing-footer{text-align:center;margin-top:32px;color:#333;font-size:12px}
+#pricingTab{display:none}
 </style>
 </head>
 <body>
-<div class="nav">
-<div class="logo">RepurposeAI</div>
-<button class="btn" style="padding:10px 20px;font-size:0.85rem" onclick="showApp()">Try Free</button>
+
+<nav>
+  <div class="logo">
+    <div class="logo-icon">⟳</div>
+    <span class="logo-text">RepurposeAI</span>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('app')">app</button>
+    <button class="tab-btn" onclick="showTab('pricing')">pricing</button>
+  </div>
+</nav>
+
+<div id="appTab">
+  <div class="container">
+    <div class="hero">
+      <p class="hero-label">One piece of content → everywhere</p>
+      <h1>Stop rewriting.<br><span>Start repurposing.</span></h1>
+      <p>Paste any long-form content. Get platform-ready posts instantly.</p>
+    </div>
+
+    <p class="section-label">Select platforms</p>
+    <div class="platforms" id="platforms">
+      <button class="platform-btn selected" data-id="twitter" data-color="#ffffff" onclick="togglePlatform(this)">𝕏 X / Twitter</button>
+      <button class="platform-btn selected" data-id="instagram" data-color="#E1306C" onclick="togglePlatform(this)">◈ Instagram</button>
+      <button class="platform-btn" data-id="facebook" data-color="#1877F2" onclick="togglePlatform(this)">⬡ Facebook</button>
+      <button class="platform-btn" data-id="youtube" data-color="#FF0000" onclick="togglePlatform(this)">▶ YouTube</button>
+    </div>
+
+    <div class="input-box">
+      <div class="input-header">
+        <span>Your content</span>
+        <span id="charCount">0 chars</span>
+      </div>
+      <textarea id="inputText" rows="8" placeholder="Paste your blog post, newsletter, essay, or any long-form content here..." oninput="onInput()"></textarea>
+    </div>
+
+    <p class="error" id="error" style="display:none"></p>
+
+    <button class="repurpose-btn" id="repurposeBtn" onclick="handleRepurpose()">⟳ Repurpose</button>
+
+    <div class="outputs" id="outputs" style="display:none">
+      <p class="section-label">Your repurposed content</p>
+      <div class="outputs-grid" id="outputsGrid"></div>
+    </div>
+  </div>
 </div>
-<div class="hero" id="hero">
-<h1>RepurposeAI</h1>
-<p class="sub">Turn one piece of content into platform-ready posts for Twitter, LinkedIn, Instagram, email and TikTok instantly.</p>
-<button class="btn" onclick="showApp()">Start Repurposing Free</button>
+
+<div id="pricingTab">
+  <div class="container">
+    <div class="hero">
+      <p class="hero-label">Simple pricing</p>
+      <h1>Pay how <span>you want.</span></h1>
+    </div>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <div><p class="plan-name">Starter</p><div class="plan-price" style="color:#fff">$0</div><p style="color:#444;font-size:12px;margin-top:4px">3 repurposes/mo</p></div>
+        <ul class="plan-features"><li><span class="plan-check">✓</span>3 repurposes/month</li><li><span class="plan-check">✓</span>2 platforms per run</li><li><span class="plan-check">✓</span>Basic output</li></ul>
+        <button class="plan-btn">Start Free</button>
+      </div>
+      <div class="pricing-card highlight">
+        <div class="popular-badge">Most Popular</div>
+        <div><p class="plan-name">Pro</p><div class="plan-price" style="color:#000">$12<span style="font-size:13px;font-family:'DM Mono',monospace">/mo</span></div><p style="color:#555;font-size:12px;margin-top:4px">Unlimited</p></div>
+        <ul class="plan-features"><li><span class="plan-check">✓</span>Unlimited repurposes</li><li><span class="plan-check">✓</span>All 4 platforms</li><li><span class="plan-check">✓</span>Priority AI</li><li><span class="plan-check">✓</span>Copy to clipboard</li></ul>
+        <button class="plan-btn">Go Pro</button>
+      </div>
+      <div class="pricing-card">
+        <div><p class="plan-name">Credits</p><div class="plan-price" style="color:#fff">$5<span style="font-size:13px;font-family:'DM Mono',monospace">/pack</span></div><p style="color:#444;font-size:12px;margin-top:4px">20 credits</p></div>
+        <ul class="plan-features"><li><span class="plan-check">✓</span>20 repurposes</li><li><span class="plan-check">✓</span>All platforms</li><li><span class="plan-check">✓</span>Never expires</li></ul>
+        <button class="plan-btn">Buy Credits</button>
+      </div>
+      <div class="pricing-card">
+        <div><p class="plan-name">Lifetime</p><div class="plan-price" style="color:#fff">$79<span style="font-size:13px;font-family:'DM Mono',monospace"> once</span></div><p style="color:#444;font-size:12px;margin-top:4px">Forever</p></div>
+        <ul class="plan-features"><li><span class="plan-check">✓</span>Unlimited forever</li><li><span class="plan-check">✓</span>All platforms</li><li><span class="plan-check">✓</span>All future features</li><li><span class="plan-check">✓</span>Founder badge</li></ul>
+        <button class="plan-btn">Own It Forever</button>
+      </div>
+    </div>
+    <p class="pricing-footer">All plans include copy-to-clipboard • Stripe-powered • Cancel anytime</p>
+  </div>
 </div>
-<div class="app" id="app">
-<div class="label">Your Content</div>
-<textarea id="txt" placeholder="Paste your blog post, podcast transcript, newsletter, or any content here..."></textarea>
-<div class="label">Target Platforms</div>
-<div class="platforms">
-<button class="chip on" onclick="tog(this)">Twitter/X</button>
-<button class="chip on" onclick="tog(this)">LinkedIn</button>
-<button class="chip" onclick="tog(this)">Instagram</button>
-<button class="chip" onclick="tog(this)">Newsletter</button>
-<button class="chip" onclick="tog(this)">TikTok Script</button>
-</div>
-<button class="genbtn" onclick="gen()">Generate Content</button>
-<div class="err" id="err"></div>
-<div class="output" id="out"></div>
-</div>
+
 <script>
-function showApp(){document.getElementById("hero").style.display="none";document.getElementById("app").classList.add("show");}
-function tog(b){b.classList.toggle("on");}
-async function gen(){
-var txt=document.getElementById("txt").value;
-var out=document.getElementById("out");
-var err=document.getElementById("err");
-var plats=Array.from(document.querySelectorAll(".chip.on")).map(function(c){return c.textContent;});
-err.className="err";out.className="output";
-if(txt.trim().length<40){err.textContent="Please enter at least 40 characters.";err.className="err show";return;}
-out.textContent="Generating...";out.className="output show";
-try{
-var r=await fetch("/.netlify/functions/generate",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({prompt:"Repurpose this content for "+plats.join(", ")+". Label each platform clearly.\n\nContent: "+txt})
+const HINTS = {
+  twitter: "Punchy thread • 280 chars/tweet • hook + value + CTA",
+  instagram: "Caption + hashtags • storytelling • visual hook",
+  facebook: "Conversational post • longer form • community feel",
+  youtube: "Video description + title ideas + tags"
+};
+
+const COLORS = { twitter:"#ffffff", instagram:"#E1306C", facebook:"#1877F2", youtube:"#FF0000" };
+
+function showTab(tab) {
+  document.getElementById('appTab').style.display = tab === 'app' ? 'block' : 'none';
+  document.getElementById('pricingTab').style.display = tab === 'pricing' ? 'block' : 'none';
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', (i===0&&tab==='app')||(i===1&&tab==='pricing')));
+}
+
+function togglePlatform(btn) {
+  const color = COLORS[btn.dataset.id];
+  btn.classList.toggle('selected');
+  if (btn.classList.contains('selected')) {
+    btn.style.borderColor = color === '#ffffff' ? '#fff' : color;
+    btn.style.color = color === '#ffffff' ? '#fff' : color;
+    btn.style.background = color === '#ffffff' ? '#1a1a1a' : color + '22';
+  } else {
+    btn.style.borderColor = '#2a2a2a';
+    btn.style.color = '#555';
+    btn.style.background = '#0f0f0f';
+  }
+  updateBtn();
+}
+
+// Init selected platforms
+document.querySelectorAll('.platform-btn.selected').forEach(btn => {
+  const color = COLORS[btn.dataset.id];
+  btn.style.borderColor = color === '#ffffff' ? '#fff' : color;
+  btn.style.color = color === '#ffffff' ? '#fff' : color;
+  btn.style.background = color === '#ffffff' ? '#1a1a1a' : color + '22';
 });
-var d=await r.json();
-if(d.error){out.textContent="Error: "+d.error.message;return;}
-out.textContent=d.content.map(function(b){return b.text||"";}).join("");
-}catch(e){out.className="output";err.textContent="Generation failed. Please try again.";err.className="err show";}
+
+function onInput() {
+  const txt = document.getElementById('inputText').value;
+  document.getElementById('charCount').textContent = txt.length + ' chars';
+  updateBtn();
+}
+
+function updateBtn() {
+  const txt = document.getElementById('inputText').value.trim();
+  const selected = document.querySelectorAll('.platform-btn.selected').length;
+  const btn = document.getElementById('repurposeBtn');
+  if (txt && selected > 0) {
+    btn.className = 'repurpose-btn active';
+    btn.textContent = '⟳ Repurpose for ' + selected + ' platform' + (selected !== 1 ? 's' : '');
+  } else {
+    btn.className = 'repurpose-btn';
+    btn.textContent = '⟳ Repurpose';
+  }
+}
+
+async function handleRepurpose() {
+  const txt = document.getElementById('inputText').value.trim();
+  const selectedBtns = document.querySelectorAll('.platform-btn.selected');
+  if (!txt || selectedBtns.length === 0) return;
+
+  const platforms = Array.from(selectedBtns).map(b => b.dataset.id);
+  const btn = document.getElementById('repurposeBtn');
+  btn.className = 'repurpose-btn loading';
+  btn.textContent = 'Repurposing...';
+  document.getElementById('error').style.display = 'none';
+
+  // Show loading cards
+  const grid = document.getElementById('outputsGrid');
+  document.getElementById('outputs').style.display = 'block';
+  grid.innerHTML = platforms.map(p => `
+    <div class="output-card">
+      <div class="card-header" style="background:${p==='twitter'?'#141414':COLORS[p]+'11'}">
+        <div class="card-title" style="color:${COLORS[p]}">${p.toUpperCase()}</div>
+      </div>
+      <div class="card-body">
+        ${[100,80,90,60].map(w=>`<div class="shimmer-line" style="width:${w}%"></div>`).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  const prompt = `You are a world-class social media content strategist. Repurpose this content into platform-optimized posts.\n\nCONTENT:\n"""\n${txt}\n"""\n\nPLATFORMS:\n${platforms.map(p=>`- ${p}: ${HINTS[p]}`).join('\n')}\n\nReturn ONLY valid JSON with platform IDs as keys and post content as string values. No markdown, no explanation.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, messages: [{ role: 'user', content: prompt }] })
+    });
+    const data = await res.json();
+    const text = data.content?.map(c => c.text||'').join('') || '';
+    const parsed = JSON.parse(text.replace(/```json|```/g,'').trim());
+
+    grid.innerHTML = platforms.map(p => `
+      <div class="output-card" style="border-color:${COLORS[p]==='#ffffff'?'#2a2a2a':COLORS[p]+'44'}">
+        <div class="card-header" style="background:${p==='twitter'?'#141414':COLORS[p]+'11'}">
+          <div class="card-title" style="color:${COLORS[p]}">${p.toUpperCase()}</div>
+          <button class="copy-btn" onclick="copyText(this,'${p}')">copy</button>
+        </div>
+        <div class="card-body" id="out-${p}">${parsed[p]||''}</div>
+      </div>
+    `).join('');
+  } catch(e) {
+    document.getElementById('error').textContent = 'Something went wrong. Try again.';
+    document.getElementById('error').style.display = 'block';
+    grid.innerHTML = '';
+    document.getElementById('outputs').style.display = 'none';
+  }
+
+  btn.className = 'repurpose-btn active';
+  btn.textContent = '⟳ Repurpose for ' + platforms.length + ' platform' + (platforms.length!==1?'s':'');
+}
+
+function copyText(btn, platform) {
+  const text = document.getElementById('out-' + platform).textContent;
+  navigator.clipboard.writeText(text);
+  btn.textContent = '✓ copied';
+  btn.classList.add('copied');
+  setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 2000);
 }
 </script>
 </body>
