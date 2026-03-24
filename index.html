@@ -232,7 +232,7 @@ async function handleRepurpose() {
   const prompt = `You are a world-class social media content strategist. Repurpose this content into platform-optimized posts.\n\nCONTENT:\n"""\n${txt}\n"""\n\nPLATFORMS:\n${platforms.map(p=>`- ${p}: ${HINTS[p]}`).join('\n')}\n\nReturn ONLY valid JSON with platform IDs as keys and post content as string values. No markdown, no explanation.`;
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('/api/repurpose', {   method: 'POST',   headers: { 'Content-Type': 'application/json' },   body: JSON.stringify({ text: txt, platforms: platforms }) }); const parsed = await res.json();
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, messages: [{ role: 'user', content: prompt }] })
